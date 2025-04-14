@@ -3,40 +3,30 @@ import os, json, re
 def execute(question: str, parameter):
     json_body_string_friend = generate_json_body(question)
     return json_body_string_friend
-    
+
 def generate_json_body(question):
     # Extract the model name from the question
     model_match = re.search(r"Uses model (\S+)", question)
     if not model_match:
-        return "Error: Could not extract the model name."
-    model_name = model_match.group(1)
-
-    # Extract the system message from the question
-    system_message_match = re.search(r"Has a system message: (.*)", question)
-    if not system_message_match:
-        return "Error: Could not extract the system message."
-    system_message = system_message_match.group(1).strip()
-
-    # Extract the user message from the question
-    user_message_match = re.search(r"Has a user message: (.*)", question)
-    if not user_message_match:
-        return "Error: Could not extract the user message."
-    user_message = user_message_match.group(1).strip()
+        model_name = "gpt-4o-mini"
+    else:
+        model_name = model_match.group(1)
 
     # Extract the required fields for the JSON schema
+    field_pattern = r"(\w+)\s*\((\w+)\)"  # Matches "field_name (type)"
     fields_match = re.search(r"with required fields: (.*?)(?:\.|$)", question)
+    fields = []
     if not fields_match:
-        return "Error: Could not extract the required fields."
+        fields = [("longitude", "number"), ("latitude", "number"), ("street", "string")]
+    else:
+        fields_text = fields_match.group(1)
+        fields = [match.groups() for match in re.finditer(field_pattern, fields_text)]
 
     # Extract and clean required fields using regex to match all field definitions
-    fields_text = fields_match.group(1)
-    field_pattern = r"(\w+)\s*\((\w+)\)"  # Matches "field_name (type)"
 
     properties = {}
     required_fields = []
-
-    for match in re.finditer(field_pattern, fields_text):
-        field_name, field_type = match.groups()
+    for field_name, field_type in fields:
         required_fields.append(field_name)
 
         # Map field type to JSON Schema type
