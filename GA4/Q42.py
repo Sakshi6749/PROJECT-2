@@ -10,6 +10,8 @@ regex_patterns = {
 def execute(question: str, parameter):
     print(f"File Name: {os.path.basename(__file__)[0]}")
     parameters = find_filter_format(question)
+    if len(parameters) == 0:
+        parameters = parameter
     result = None
     if parameters and "filter" in parameters and "titles" in parameters:
         if type(parameters["filter"]) == list:
@@ -18,7 +20,7 @@ def execute(question: str, parameter):
             result = fetch_filtered_imdb_titles(int(parameters["filter"][0]), int(parameters["filter"][1]), int(parameters["titles"]))
     else:
         result = fetch_filtered_imdb_titles()
-        
+
     return result
 
 def fetch_filtered_imdb_titles(min_rating=3.0, max_rating=7.0, number_of_titles=25):
@@ -67,15 +69,15 @@ def fetch_filtered_imdb_titles(min_rating=3.0, max_rating=7.0, number_of_titles=
                     })
             except (ValueError, TypeError):
                 continue
-    
+
     return movies
     #return json.dumps(movies, indent=2, ensure_ascii=False)
-        
+
 def find_filter_format(question):
     regex_params = extract_using_regex(question)
     print(regex_params)
     return regex_params
-    
+
 def extract_using_regex(text):
     extracted = {}
     for param, pattern in regex_patterns.items():
