@@ -2,9 +2,11 @@ import os, json, re
 
 def execute(question: str, parameter):
     ticket_type = get_ticket_type(question)
+    if not ticket_type:
+        ticket_type = parameter["ticket_type"]
     sql = generate_sql_for_ticket_type(ticket_type)
     return sql
-        
+
 def generate_sql_for_ticket_type(ticket_type: str):
 
     sql = f"""
