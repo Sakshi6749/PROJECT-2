@@ -9,16 +9,16 @@ def detect_and_generate_code(question):
     Detects whether the given question is asking for cosine similarity calculation
     between text embeddings and returns the appropriate Python function.
     """
-    # Keywords to check if the question is relevant
-    keywords = [
-        "ShopSmart", "customer feedback", "text embeddings", "cosine similarity",
-        "most similar", "pair", "array of floats"
-    ]
+    # # Keywords to check if the question is relevant
+    # keywords = [
+    #     "ShopSmart", "customer feedback", "text embeddings", "cosine similarity",
+    #     "most similar", "pair", "array of floats"
+    # ]
 
-    # Check if all required keywords are in the question
-    if all(keyword.lower() in question.lower() for keyword in keywords):
-        # If the question matches, return the required function
-        return """import numpy as np
+    # # Check if all required keywords are in the question
+    # if all(keyword.lower() in question.lower() for keyword in keywords):
+    #     # If the question matches, return the required function
+    return """import numpy as np
 
 def most_similar(embeddings):
     max_similarity = -1
