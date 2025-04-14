@@ -2,23 +2,25 @@ import os, json, io, pandas as pd, zipfile, re
 from bs4 import BeautifulSoup
 
 def execute(question: str, parameter, file_bytes=None):
-    file = io.BytesIO(file_bytes) if file_bytes else None
-    sum = process_unicode_data(file, question)
+    if not file_bytes:
+        return "No file provided"
+    file = io.BytesIO(file_bytes)
+    sum = process_unicode_data(file, question, parameter)
     return sum
 
-def process_unicode_data(zip_file, question):
-    
+def process_unicode_data(zip_file, question, parameter):
+
     # Step 1: Extract substring between "symbol matches" and "across"
     match = re.search(r"symbol matches (.+?) across", question)
     if match:
         symbol_text = match.group(1)  # Extracted text between the keywords
         symbols = [sym.strip() for sym in symbol_text.split(" OR ")]  # Split by ' OR ' and clean spaces
     else:
-        raise ValueError("No symbols found in the sentence.")
+        symbols = parameter["symbols"]  # Default symbols if not found
 
-    
+
     target_symbols = symbols[-3:]
-    
+
     # Process each file with correct encoding and delimiter
     files = [
         ("data1.csv", "cp1252", ","),
