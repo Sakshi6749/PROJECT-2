@@ -7,17 +7,18 @@ from typing import Optional
 
 def execute(question: str, parameter, file_bytes):
         print(f"File Name: {os.path.basename(__file__)[0]}")
-        
+
         pdf_bytes = file_bytes
         pdf_file = io.BytesIO(pdf_bytes)
-        
-        df = extract_data_from_pdf_tabula(pdf_file)
+
+        #df = extract_data_from_pdf_tabula(pdf_file)
+        df = extract_data_from_pdf(pdf_file)
         #df.to_csv("data.csv", index=False)
-        subject1, marks, subject2, marks_range = get_parameters(question)
-        
+        subject1, marks, subject2, marks_range = get_parameters(question) # get_parameters(question)
+
         # verify subject parameters
         total_marks = filter_and_calculate(df, marks_range, subject2, marks, subject1)
-        
+
         return total_marks
 
 def extract_data_from_pdf_tabula(pdf_file):
@@ -60,7 +61,7 @@ def extract_data_from_pdf_tabula(pdf_file):
     # total_biology_marks = filtered_df["Economics"].sum()
     # print(total_biology_marks)
     return df
-    
+
 def extract_data_from_pdf(pdf_path):
     data = []
     group_number = None  # Track the current group number
@@ -99,7 +100,7 @@ def filter_and_calculate(df, group_range, filter_subject, min_marks, target_subj
     # Calculate the total target_subject marks
     total = df_filtered[target_subject].sum().item()
     return total
-        
+
 # def extract_data_from_pdf(pdf_path):
 #     data = []
 #     group_number = None  # Track the current group number
@@ -141,7 +142,7 @@ def filter_and_calculate(df, group_range, filter_subject, min_marks, target_subj
 
 #     return df_filtered, total_marks
 
-def get_parameters(question):
+def get_parameters_old(question):
 
     # What is the total Economics marks of students who scored 56 or more marks in Maths in groups 53-86 (including both groups)?
     regex_patterns = {
@@ -153,3 +154,18 @@ def get_parameters(question):
     subject2 = reg_params["location"][-1][2] if "location" in reg_params else "Maths"
     marks_range = (int(reg_params["location"][-1][3]), int(reg_params["location"][-1][4])) if "location" in reg_params else (53, 86)
     return subject1, marks, subject2, marks_range
+
+
+def get_parameters(question):
+    """
+    Extracts values p1, p2, p3, and p4 from the given input string.
+    :param input_string: str, the input question
+    :return: dict, extracted values
+    """
+    pattern = r"What is the total (.*?) marks of students who scored (\d+) or more marks in (.*?) in groups (\d+)-(\d+)"
+    match = re.search(pattern, question)
+
+    if match:
+        return  match.group(1), int(match.group(2)), match.group(3), (int(match.group(4)), int(match.group(5)))
+    else:
+        return "Economics", 56, "Maths", (53, 86)
