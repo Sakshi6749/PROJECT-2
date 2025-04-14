@@ -8,8 +8,10 @@ from datetime import datetime
 def execute(question: str, parameter, file_bytes: None):
     min_bytes = int(parameter["min_file_size"])
     cutoff_datetime = get_filter_date(parameter)
+    if cutoff_datetime is None:
+        cutoff_datetime = parameter["modification_date"]
     return list_files_and_attributes(parameter["_file_"], cutoff_datetime, min_bytes)
-        
+
 def list_files_and_attributes(file, cutoff_datetime, min_bytes):
     # Create a temporary directory
     temp_dir = tempfile.mkdtemp()
@@ -27,7 +29,7 @@ def list_files_and_attributes(file, cutoff_datetime, min_bytes):
 
         # with zipfile.ZipFile(zip_path, "r") as zip_ref:
         #     zip_ref.extractall(extracted_dir)
-        
+
         total_size = 0
 
         with zipfile.ZipFile(zip_path, 'r') as zip_ref:
@@ -48,14 +50,14 @@ def list_files_and_attributes(file, cutoff_datetime, min_bytes):
                     total_size += file_info.file_size
 
         return total_size
-        
+
     except Exception as e:
         return {"error": str(e)}
 
     finally:
         # Clean up temp directory
         shutil.rmtree(temp_dir, ignore_errors=True)
-        
+
 def get_filter_date(parameter):
     date_str = parameter["modification_date"]
     date_format = "%a, %d %b, %Y, %I:%M %p"
